@@ -1,68 +1,205 @@
 package ru.netology;
 
+import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
+import static com.codeborne.selenide.Condition.exactText;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.*;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-class CardOrderTest {
-    private WebDriver driver;
-    private static ChromeOptions options;
-
-    @BeforeAll
-    static void setUpAll() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
-        System.setProperty("webdriver.chrome.driver", "driver/chromedriver");
-    }
+class CardOrderTest{
     @BeforeEach
     void setUp() {
-        driver = new ChromeDriver(options);
+        Configuration.holdBrowserOpen = true;
+        open ("http://localhost:7777/");
     }
+
     @AfterEach
-    void tearDown() {
-        driver.quit();
-        driver = null;
+    void memoryClear() {
+        clearBrowserCookies();
+        clearBrowserLocalStorage();
     }
 
-/**** Тесты из лекции
-    @Test
-    void shouldTestV1() {
-        driver.get("http://localhost:7777");
-        List<WebElement> elements = driver.findElements(By.className("input__control"));
-        elements.get(0).sendKeys("Василий");
-        elements.get(1).sendKeys("+79270000000");
-        driver.findElement(By.className("checkbox__box")).click();
-        driver.findElement(By.className("button")).click();
-        String text = driver.findElement(By.className("alert-success")).getText();
-        assertEquals("Ваша заявка успешно отправлена!", text.trim());
+    private void clearBrowserCookies() {
     }
 
     @Test
-    void shouldTestV2() {
-        driver.get("http://localhost:7777");
-        WebElement form = driver.findElement(By.cssSelector("[data-test-id=callback-form]"));
-        form.findElement(By.cssSelector("[data-test-id=name] input")).sendKeys("Василий");
-        form.findElement(By.cssSelector("[data-test-id=phone] input")).sendKeys("+79270000000");
-        form.findElement(By.cssSelector("[data-test-id=agreement]")).click();
-        form.findElement(By.cssSelector("[data-test-id=submit]")).click();
-        String text = driver.findElement(By.className("alert-success")).getText();
-        assertEquals("Ваша заявка успешно отправлена!", text.trim());
+    void shouldTestNameFieldUsingRussianY() {
+        $("input[name='name']").setValue("Йорик Кнаус");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=order-success]").shouldHave(exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
     }
 
-    */
+    @Test
+    void shouldTestNameFieldUsingRussianYo() {
+        $("input[name='name']").setValue("Алёна Мирова");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=order-success]").shouldHave(exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+        screenshot("shouldTestNameFieldUsingRussianYo");
+    }
+
+    @Test
+    void shouldTestNameFieldUsingDash() {
+        $("input[name='name']").setValue("Дарья Мирова-Мирченко");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=order-success]").shouldHave(exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+    }
+
+    @Test
+    void shouldTestEmptyNameField() {
+        $("input[name='name']").setValue("");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=name].input_invalid span.input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
+    }
+
+    @Test
+    void shouldTestCamelCaseName() {
+        $("input[name='name']").setValue("АнДрЕй СмИРНОв");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=order-success]").shouldHave(exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+    }
+
+    @Test
+    void shouldTestNameWithNumbers() {
+        $("input[name='name']").setValue("АР2Д2");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=name].input_invalid span.input__sub").shouldHave(exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
+    }
+
+    @Test
+    void shouldTestLatinNames() {
+        $("input[name='name']").setValue("JuanMoralezDeMariaLuizaGonzelez");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=name].input_invalid span.input__sub").shouldHave(exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
+    }
+
+    @Test
+    void shouldTestSpacesInNames() {
+        $("input[name='name']").setValue("  Пашка   Фейсконтроль  ");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=order-success]").shouldHave(exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+    }
+
+    @Test
+    void shouldTestSymbols() {
+        $("input[name='name']").setValue("О!Р=И(АНН*А");
+        $("input[type='tel']").setValue("+79995551122");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=name].input_invalid span.input__sub").shouldHave(exactText("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
+    }
+
+    @Test
+    void shouldTestEmptyЕTel() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Поле обязательно для заполнения"));
+
+    }
+
+    @Test
+    void shouldTestTelStartsFrom8() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("88005002321");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+
+    }
+
+    @Test
+    void shouldTestTelLessThan10Numbers() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("+7123456789");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+
+    }
+
+    @Test
+    void shouldTestTel1Number() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("7");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+
+    }
+
+    @Test
+    void shouldTestTelWithCommas() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("+7.915.123.78.89");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+
+    }
+
+    @Test
+    void shouldTestTelWithDashes() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("+7-915-123-78-89");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+
+    }
+
+    @Test
+    void shouldTestTelWithLetter() {
+        $("input[name='name']").setValue("Привет");
+        $("input[type='tel']").setValue("+7один23456789QA");
+        $("[data-test-id=agreement]").click();
+        $x("//button").click();
+        $("[data-test-id=phone].input_invalid span.input__sub").shouldHave(exactText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+
+    }
+
+    @Test
+    void shouldTestAgreementBox() {
+        $("input[name='name']").setValue("Олды оглы");
+        $("input[type='tel']").setValue("+79876541232");
+        $("[data-test-id=agreement]").click();
+        $("[data-test-id=agreement].checkbox_checked").isEnabled();
+        $x("//button").click();
+        $("[data-test-id=order-success]").shouldHave(exactText("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+    }
+
+    @Test
+    void shouldTestAgreementBoxUnchecked() {
+        $("input[name='name']").setValue("Олды оглы");
+        $("input[type='tel']").setValue("+79876541232");
+        $("[data-test-id=agreement]").doubleClick();
+        $x("//button").click();
+        $("label.input_invalid").shouldBe(visible);
+    }
+
+
+
 }
+
+
 
 
 
