@@ -10,12 +10,6 @@ import static com.codeborne.selenide.Selenide.open;
 
 class CardOrderTest{
 
-    @Test void testChrome(){
-
-        open("http://localhost:7777");
-
-    }
-
     @Test
     void shouldSuccessfulSendValidForm() {
         open("http://localhost:7777");
@@ -51,7 +45,7 @@ class CardOrderTest{
         $("[data-test-id=phone] input").setValue("+791300000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_type_tel .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +7913113567."));
+        $(".input_type_tel .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +79131041698."));
     }
 
     @Test
