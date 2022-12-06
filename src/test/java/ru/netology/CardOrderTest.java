@@ -1,5 +1,6 @@
 package ru.netology;
 
+
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.exactText;
@@ -8,14 +9,21 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
 class CardOrderTest{
+
+    @Test void testChrome(){
+
+        open("http://localhost:7777");
+
+    }
+
     @Test
     void shouldSuccessfulSendValidForm() {
         open("http://localhost:7777");
-        $("[data-test-id=name] input").setValue("Иванов-Петров Иван");
+        $("[data-test-id=name] input").setValue("Дмитриев Дмитрий");
         $("[data-test-id=phone] input").setValue("+79130000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".Success_successBlock__3jRx1").shouldHave(text(" Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+        $(".Success_successBlock__2L3Cw").shouldHave(text(" Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
     }
 
     @Test
@@ -66,7 +74,6 @@ class CardOrderTest{
                 .shouldHave(exactText("Я соглашаюсь с условиями обработки и использования моих персональных данных" +
                         " и разрешаю сделать запрос в бюро кредитных историй"));
     }
-
 
 }
 
