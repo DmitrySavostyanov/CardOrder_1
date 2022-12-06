@@ -13,7 +13,7 @@ class CardOrderTest{
     @Test
     void shouldSuccessfulSendValidForm() {
         open("http://localhost:7777");
-        $("[data-test-id=name] input").setValue("Дмитриев Дмитрий");
+        $("[data-test-id=name] input").setValue("Дмитриев-Иванов Дмитрий");
         $("[data-test-id=phone] input").setValue("+79130000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
@@ -45,7 +45,7 @@ class CardOrderTest{
         $("[data-test-id=phone] input").setValue("+791300000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_type_tel .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +79131041698."));
+        $(".input_type_tel .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
     }
 
     @Test
