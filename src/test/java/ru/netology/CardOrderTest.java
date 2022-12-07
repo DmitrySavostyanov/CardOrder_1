@@ -1,6 +1,7 @@
 package ru.netology;
 
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.exactText;
@@ -9,58 +10,61 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
 class CardOrderTest{
-
+    @BeforeEach
+    void setUp() {
+        open("http://localhost:7777");
+    }
     @Test
     void shouldSuccessfulSendValidForm() {
-        open("http://localhost:7777");
+
         $("[data-test-id=name] input").setValue("Дмитриев-Иванов Дмитрий");
         $("[data-test-id=phone] input").setValue("+79130000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".Success_successBlock__2L3Cw").shouldHave(text(" Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
+        $("[data-test-id=order-success]").shouldHave(text(" Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время."));
     }
 
     @Test
     void shouldGetErrorMessageIfNameInvalid() {
-        open("http://localhost:7777");
+
         $("[data-test-id=name] input").setValue("Ivanov Ivan");
+        $("[data-test-id=phone] input").setValue("+79130000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_type_text .input__sub").shouldHave(text("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
+        $("[data-test-id=name].input_invalid .input__sub").shouldHave(text("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
     }
 
     @Test
     void shouldGetErrorMessageIfNameEmpty() {
-        open("http://localhost:7777");
-        $("[data-test-id=name] input").setValue("");
+
+        $("[data-test-id=phone] input").setValue("+79130000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_type_text .input__sub").shouldHave(text("Поле обязательно для заполнения"));
+        $("[data-test-id=name].input_invalid .input__sub").shouldHave(text("Поле обязательно для заполнения"));
     }
 
     @Test
     void shouldGetErrorMessageIfPhoneInvalid() {
-        open("http://localhost:7777");
+
         $("[data-test-id=name] input").setValue("Иванов-Петров Иван");
         $("[data-test-id=phone] input").setValue("+791300000000");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_type_tel .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+        $("[data-test-id=phone].input_invalid .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
     }
 
     @Test
     void shouldGetErrorMessageIfPhoneEmpty() {
-        open("http://localhost:7777");
+
         $("[data-test-id=name] input").setValue("Иванов-Петров Иван");
-        $("[data-test-id=phone] input").setValue("");
         $("[data-test-id=agreement]").click();
         $(".button").click();
-        $(".input_type_tel .input__sub").shouldHave(text("Поле обязательно для заполнения"));
+        $("[data-test-id=phone].input_invalid .input__sub").shouldHave(text("Поле обязательно для заполнения"));
     }
 
     @Test
     void shouldInvalidCheckbox() {
-        open("http://localhost:7777");
+
         $("[data-test-id=name] input").setValue("Иванов-Петров Иван");
         $("[data-test-id=phone] input").setValue("+79130000000");
         $(".button").click();
